@@ -1,6 +1,8 @@
-# mycompany
+# website-devops
 
-DevOps & AIOps website. Static site built with [Astro](https://astro.build), checked and published by GitLab CI/CD, hosted free on GitLab Pages.
+DevOps & AIOps website. Static site built with [Astro](https://astro.build), checked and published by GitHub Actions, hosted free on GitHub Pages.
+
+Live: https://ashutoshmaske22.github.io/website-devops/
 
 ## Run it on your laptop
 
@@ -21,7 +23,7 @@ npm run preview   # serve dist/ locally to check the production build
 | Homepage text, services, case studies | `src/pages/index.astro` |
 | Colors and fonts | `src/styles/global.css` (the `:root` block at the top) |
 | Header and footer | `src/layouts/Base.astro` |
-| Pipeline | `.gitlab-ci.yml` |
+| Pipeline | `.github/workflows/deploy.yml` |
 
 Internal links must use the `u()` helper (`src/lib/url.ts`), for example `href={u('/blog/')}`, so they work whether the site is served at the root or under a sub-path.
 
@@ -51,39 +53,40 @@ git switch -c update-services          # 1. new branch
 # edit files
 git add -A && git commit -m "Update services copy"
 git push -u origin update-services     # 2. push
-# 3. open a merge request in GitLab → the "check" job runs
-# 4. merge to main → the "pages" job publishes the site (~1–2 minutes)
+# 3. open a pull request on GitHub → Actions builds and audits it
+# 4. merge to main → Actions deploys to GitHub Pages (~1–2 minutes)
 ```
 
-## Pipeline (`.gitlab-ci.yml`)
+## Pipeline (`.github/workflows/deploy.yml`)
 
-| Job | Runs on | Does |
-|---|---|---|
-| `check` | merge requests and other branches | `npm ci`, `npm audit --audit-level=high`, build, verify `index.html` |
-| `pages` | `main` only | the same checks, then publishes `public/` to GitLab Pages |
+| Trigger | Does |
+|---|---|
+| Pull request | `npm ci`, `npm audit --audit-level=high`, build, verify `index.html` (no deploy) |
+| Push to `main` | the same checks, then deploys to GitHub Pages |
+| Manual (Actions tab → Run workflow) | the same as a push to `main` |
 
-`SITE_URL` is set from GitLab's `$CI_PAGES_URL`, so links are correct at whatever address GitLab gives the site.
+`SITE_URL` comes from GitHub's Pages settings, so links stay correct at the `github.io/website-devops/` sub-path and after you add a custom domain.
+
+Dependabot (`.github/dependabot.yml`) opens update PRs weekly for npm and monthly for Actions.
 
 ## Rollback
 
 ```bash
 git revert <bad-commit-sha>
-git push origin main        # pages job republishes the previous good version
+git push origin main        # Actions redeploys the previous good version
 ```
 
-Or in GitLab: **Build → Pipelines**, open the last good pipeline on `main`, and re-run its `pages` job.
+Or: **Actions** tab → open the last good run on `main` → **Re-run all jobs**.
 
-## One-time GitLab settings
+## One-time GitHub settings
 
-- **Deploy → Pages:** turn on **Force HTTPS**. Note the site URL shown there.
-- **Settings → Repository → Protected branches:** `main` = no one can push directly, maintainers can merge.
-- **Settings → Merge requests:** tick **Pipelines must succeed**.
+- **Settings → Pages → Build and deployment → Source: GitHub Actions** (required, or the deploy job fails)
+- **Settings → Branches → Add rule for `main`:** require a pull request and require the `build` check to pass
+- The repo must be **public** for free GitHub Pages
 
 ## Cost
 
 | Item | Cost |
 |---|---|
-| GitLab repo, CI/CD (400 compute minutes/month on Free), Pages hosting | Free |
+| GitHub repo, Actions, Pages (public repo) | Free |
 | Custom domain (optional, later) | ~US$10–11/year |
-
-Each pipeline takes about 1 minute, so the free minutes cover several hundred changes a month.

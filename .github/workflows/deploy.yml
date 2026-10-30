@@ -1,0 +1,68 @@
+name: Build and deploy
+
+on:
+  pull_request:          # check every PR (build only, no deploy)
+  push:
+    branches: [main]     # deploy when main changes
+  workflow_dispatch:     # allow a manual run from the Actions tab
+
+permissions:
+  contents: read
+
+concurrency:
+  group: pages-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version-file: .nvmrc
+          cache: npm
+
+      - name: Get the GitHub Pages address
+        id: pages
+        if: github.event_name != 'pull_request'
+        uses: actions/configure-pages@v5
+
+      - name: Install exact dependencies
+        run: npm ci
+
+      - name: Security audit (fail on high or critical)
+        run: npm audit --audit-level=high
+
+      - name: Build
+        env:
+          # e.g. https://ashutoshmaske22.github.io/website-devops
+          SITE_URL: ${{ steps.pages.outputs.base_url || 'https://ashutoshmaske22.github.io/website-devops' }}
+        run: npm run build
+
+      - name: Check the homepage was produced
+        run: test -s dist/index.html
+
+      - name: Upload site for Pages
+        if: github.event_name != 'pull_request'
+        uses: actions/upload-pages-artifact@v3
+        with:
+          path: dist
+
+  deploy:
+    if: github.event_name != 'pull_request'
+    needs: build
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    permissions:
+      pages: write
+      id-token: write
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    steps:
+      - name: Deploy to GitHub Pages
+        id: deployment
+        uses: actions/deploy-pages@v4
