@@ -1,0 +1,243 @@
+---
+import Base from '../layouts/Base.astro';
+import { SITE } from '../site.config';
+import { getPosts } from '../lib/posts';
+
+const posts = (await getPosts()).slice(0, 3);
+
+const services = [
+  {
+    tag: '01 · delivery',
+    title: 'CI/CD & GitOps pipelines',
+    text: 'Pipelines that build, test, scan, and deploy on every merge, with rollbacks you can trigger in one step.',
+    chips: ['GitHub Actions', 'GitLab CI', 'Argo CD', 'Docker'],
+  },
+  {
+    tag: '02 · infrastructure',
+    title: 'Infrastructure as code',
+    text: 'Cloud and server estates described in code and reviewed like code. No more snowflake hosts or console clicks.',
+    chips: ['Terraform', 'Ansible', 'AWS', 'Linux'],
+  },
+  {
+    tag: '03 · data',
+    title: 'Database automation & backups',
+    text: 'Repeatable database deployments, tested backup and restore, and the monitoring to know they work.',
+    chips: ['Aurora PostgreSQL', 'Qdrant', 'Bash'],
+  },
+  {
+    tag: '04 · ai platform',
+    title: 'LLMOps & AIOps',
+    text: 'Self-hosted LLM stacks wired into the tools your team already uses, plus alert triage that cuts noise before it reaches a human.',
+    chips: ['Ollama', 'Open WebUI', 'Vector DBs', 'Prometheus'],
+  },
+];
+
+const cases = [
+  {
+    meta: ['Enterprise · life sciences', 'Databases'],
+    title: 'Automated database deployments',
+    text: 'Database provisioning and schema rollout ran as manual, ticket-driven steps. I replaced them with versioned automation across environments.',
+    stack: 'Aurora PostgreSQL, Qdrant, Ansible',
+    result: 'Repeatable rollouts with the same steps in every environment',
+  },
+  {
+    meta: ['Enterprise · internal AI', 'LLMOps'],
+    title: 'Team chat connected to a private LLM',
+    text: 'A bot that brings a self-hosted model into Mattermost, so teams can ask questions where they already work without data leaving the network.',
+    stack: 'Mattermost, Open WebUI, Ollama',
+    result: 'Private LLM access inside existing team channels',
+  },
+  {
+    meta: ['Server fleet', 'Reliability'],
+    title: 'Backups you can actually restore',
+    text: 'Backup scripts and server configuration rebuilt in Ansible, with scheduled restore tests instead of hope.',
+    stack: 'Ansible, Bash, Linux',
+    result: 'Consistent server config and verified backups',
+  },
+];
+---
+<Base>
+  <div class="hero">
+    <div class="wrap">
+      <div>
+        {SITE.available && (
+          <span class="avail"><span class="dot"></span> Taking new engagements · {SITE.location}</span>
+        )}
+        <h1>Infrastructure that ships on time and <em>stays up</em> at 3 a.m.</h1>
+        <p class="lede">
+          I'm Ashutosh, a DevOps and AIOps engineer. I help teams automate deployments, harden their
+          databases, and run self-hosted LLM platforms without adding headcount.
+        </p>
+        <div class="ctas">
+          <a class="btn" href="#contact">Start with a free 30-min call</a>
+          <a class="btn ghost" href="#work">See case studies</a>
+        </div>
+      </div>
+      <div class="console" aria-label="Example incident timeline">
+        <div class="bar"><span>example incident · prod-eu</span><span class="res">● resolved</span></div>
+<pre><span class="t">02:58:11</span> <span class="fire">FIRING</span>  pg_replication_lag &gt; 30s
+<span class="t">02:58:14</span> <span class="amb">triage</span>  anomaly matched: vacuum stall
+<span class="t">02:58:40</span> <span class="amb">runbook</span> rb-db-07 · kill blocking pid
+<span class="t">02:59:02</span> <span class="amb">verify</span>  lag 31s → 4s → 0.8s
+<span class="t">02:59:05</span> <span class="res">RESOLVED</span> MTTR 54s · no page sent
+<span class="t">02:59:06</span> <span class="t">postmortem draft → #ops</span>
+
+<span class="amb">$</span> <span class="cursor"></span></pre>
+      </div>
+    </div>
+  </div>
+
+  <section id="services">
+    <div class="wrap">
+      <div class="sec-head">
+        <div class="label">// services</div>
+        <div>
+          <h2>Four things I do well</h2>
+          <p>Each one starts with your current setup, not a rewrite. You get working automation, written runbooks, and a handover your team can own.</p>
+        </div>
+      </div>
+      <div class="services">
+        {services.map((s) => (
+          <div class="svc">
+            <span class="tag">{s.tag}</span>
+            <h3>{s.title}</h3>
+            <p>{s.text}</p>
+            <div class="chips">{s.chips.map((c) => <span class="chip">{c}</span>)}</div>
+          </div>
+        ))}
+      </div>
+
+      <div class="engage">
+        <div class="eng">
+          <span class="dur">1–2 weeks · fixed price</span>
+          <h3>Infrastructure audit</h3>
+          <p>A written review of your pipelines, cloud setup, and on-call, ranked by risk and effort.</p>
+        </div>
+        <div class="eng feature">
+          <span class="dur">4–8 weeks · fixed scope</span>
+          <h3>Build project</h3>
+          <p>One defined outcome, built and handed over: a pipeline, a platform, a migration.</p>
+        </div>
+        <div class="eng">
+          <span class="dur">monthly · retainer</span>
+          <h3>Fractional DevOps</h3>
+          <p>A set number of hours each month for upkeep, reviews, and the next improvement.</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section id="work">
+    <div class="wrap">
+      <div class="sec-head">
+        <div class="label">// case studies</div>
+        <div>
+          <h2>Recent work</h2>
+          <p>Client names are withheld where contracts require it. Details on request.</p>
+        </div>
+      </div>
+      <div class="cases">
+        {cases.map((c) => (
+          <article class="case">
+            <div class="meta">{c.meta.map((m) => <span>{m}</span>)}</div>
+            <div><h3>{c.title}</h3><p>{c.text}</p></div>
+            <dl class="kv">
+              <dt>Stack</dt><dd>{c.stack}</dd>
+              <dt>Result</dt><dd>{c.result}</dd>
+            </dl>
+          </article>
+        ))}
+      </div>
+    </div>
+  </section>
+
+  <section id="about">
+    <div class="wrap">
+      <div class="sec-head">
+        <div class="label">// about</div>
+        <div><h2>Engineer first, consultant second</h2></div>
+      </div>
+      <div class="about">
+        <div class="bio">
+          <p>I work as a <strong>DevOps and AIOps engineer at Roche</strong> in Pune, where I automate database deployments, manage server configuration with Ansible, and build infrastructure for internal AI and LLM tools.</p>
+          <p>Before that I worked at <strong>Colpari GmbH in Leipzig</strong>, Germany, with distributed teams across time zones.</p>
+          <p>I take a small number of freelance engagements at a time, so each one gets real attention.</p>
+        </div>
+        <ol class="timeline">
+          <li class="now">
+            <div class="when">present</div>
+            <div class="role">DevOps & AIOps Engineer · Roche</div>
+            <p>Database automation, Ansible, backups, LLM infrastructure.</p>
+            <span class="award">★ Valuable Contributor Award</span>
+          </li>
+          <li>
+            <div class="when">earlier</div>
+            <div class="role">Colpari GmbH · Leipzig, DE</div>
+            <p>Infrastructure and operations work with a German team.</p>
+          </li>
+          <li>
+            <div class="when">alongside</div>
+            <div class="role">Independent consulting</div>
+            <p>DevOps, Linux, and automation for small teams.</p>
+          </li>
+        </ol>
+      </div>
+    </div>
+  </section>
+
+  <section id="writing">
+    <div class="wrap">
+      <div class="sec-head">
+        <div class="label">// writing</div>
+        <div><h2>Notes from production</h2><p>Practical write-ups on real DevOps and AIOps problems. <a href="/blog/">All posts →</a></p></div>
+      </div>
+      <div class="posts">
+        {posts.map((p) => (
+          <a class="post" href={p.url}>
+            <div class="pm"><span>{p.tag}</span><span class="status">{p.dateLabel}</span></div>
+            <h3>{p.title}</h3>
+            <p>{p.description}</p>
+          </a>
+        ))}
+      </div>
+    </div>
+  </section>
+
+  <section id="contact">
+    <div class="wrap">
+      <div class="contact">
+        <div class="side">
+          <div class="label">// contact</div>
+          <h2 style="margin-top:12px">Tell me what's breaking</h2>
+          <p>Send a short note about your setup and the problem. I reply within two working days with whether I can help and a rough next step.</p>
+        </div>
+        <div class="side">
+          <div class="mailrow">
+            <span class="mail" id="mail">{SITE.email}</span>
+            <button class="btn ghost" type="button" id="copy">Copy email</button>
+          </div>
+          <div class="mailrow">
+            <a class="btn" href={`mailto:${SITE.email}?subject=${encodeURIComponent('Project enquiry')}`}>Write an email</a>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+</Base>
+
+<script>
+  const btn = document.getElementById('copy');
+  const mail = document.getElementById('mail');
+  btn?.addEventListener('click', async () => {
+    try {
+      await navigator.clipboard.writeText(mail?.textContent ?? '');
+      btn.textContent = 'Copied';
+      setTimeout(() => (btn.textContent = 'Copy email'), 1600);
+    } catch {
+      const r = document.createRange();
+      if (mail) r.selectNodeContents(mail);
+      getSelection()?.removeAllRanges();
+      getSelection()?.addRange(r);
+    }
+  });
+</script>

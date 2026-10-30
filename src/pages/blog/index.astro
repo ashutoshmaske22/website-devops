@@ -1,0 +1,24 @@
+---
+import Base from '../../layouts/Base.astro';
+import { getPosts } from '../../lib/posts';
+const posts = await getPosts();
+---
+<Base title="Writing" description="Practical write-ups on real DevOps and AIOps problems.">
+  <section style="border-top:0">
+    <div class="wrap">
+      <div class="sec-head">
+        <div class="label">// writing</div>
+        <div><h2>Notes from production</h2><p>Practical write-ups on real DevOps and AIOps problems.</p></div>
+      </div>
+      <div class="posts">
+        {posts.map((p) => (
+          <a class="post" href={p.url}>
+            <div class="pm"><span>{p.tag}</span><span class="status">{p.dateLabel}</span></div>
+            <h3>{p.title}</h3>
+            <p>{p.description}</p>
+          </a>
+        ))}
+      </div>
+    </div>
+  </section>
+</Base>
