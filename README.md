@@ -1,6 +1,6 @@
 # mycompany
 
-DevOps & AIOps consulting website. Static site built with [Astro](https://astro.build), checked by GitHub Actions, hosted on Cloudflare Pages.
+DevOps & AIOps website. Static site built with [Astro](https://astro.build), checked and published by GitLab CI/CD, hosted free on GitLab Pages.
 
 ## Run it on your laptop
 
@@ -21,8 +21,9 @@ npm run preview   # serve dist/ locally to check the production build
 | Homepage text, services, case studies | `src/pages/index.astro` |
 | Colors and fonts | `src/styles/global.css` (the `:root` block at the top) |
 | Header and footer | `src/layouts/Base.astro` |
-| Domain name | `astro.config.mjs` → `site` |
-| Security headers | `public/_headers` |
+| Pipeline | `.gitlab-ci.yml` |
+
+Internal links must use the `u()` helper (`src/lib/url.ts`), for example `href={u('/blog/')}`, so they work whether the site is served at the root or under a sub-path.
 
 ## Write a blog post
 
@@ -46,32 +47,43 @@ Set `draft: true` to keep it off the site while you write.
 ## How a change goes live
 
 ```bash
-git switch -c update-services     # 1. new branch
+git switch -c update-services          # 1. new branch
 # edit files
 git add -A && git commit -m "Update services copy"
-git push -u origin update-services  # 2. push
-# 3. open a pull request on GitHub → CI runs + Cloudflare posts a preview URL
-# 4. merge → production updates in ~1 minute
+git push -u origin update-services     # 2. push
+# 3. open a merge request in GitLab → the "check" job runs
+# 4. merge to main → the "pages" job publishes the site (~1–2 minutes)
 ```
+
+## Pipeline (`.gitlab-ci.yml`)
+
+| Job | Runs on | Does |
+|---|---|---|
+| `check` | merge requests and other branches | `npm ci`, `npm audit --audit-level=high`, build, verify `index.html` |
+| `pages` | `main` only | the same checks, then publishes `public/` to GitLab Pages |
+
+`SITE_URL` is set from GitLab's `$CI_PAGES_URL`, so links are correct at whatever address GitLab gives the site.
 
 ## Rollback
 
-- **Fast:** Cloudflare dashboard → Workers & Pages → this project → Deployments → pick the last good one → Rollback.
-- **In code:** `git revert <bad-commit-sha> && git push`
+```bash
+git revert <bad-commit-sha>
+git push origin main        # pages job republishes the previous good version
+```
 
-## Checks on every pull request (`.github/workflows/ci.yml`)
+Or in GitLab: **Build → Pipelines**, open the last good pipeline on `main`, and re-run its `pages` job.
 
-1. `npm ci`: install exact dependency versions
-2. `npm audit --audit-level=high`: fail on known high or critical vulnerabilities
-3. `npm run build`: the site must build
-4. `dist/index.html` must exist
+## One-time GitLab settings
 
-Dependabot (`.github/dependabot.yml`) opens update PRs weekly.
+- **Deploy → Pages:** turn on **Force HTTPS**. Note the site URL shown there.
+- **Settings → Repository → Protected branches:** `main` = no one can push directly, maintainers can merge.
+- **Settings → Merge requests:** tick **Pipelines must succeed**.
 
 ## Cost
 
 | Item | Cost |
 |---|---|
-| Cloudflare Pages hosting + CDN | Free tier |
-| GitHub repo + Actions | Free tier |
-| Domain (.com via Cloudflare Registrar) | ~US$10–11/year |
+| GitLab repo, CI/CD (400 compute minutes/month on Free), Pages hosting | Free |
+| Custom domain (optional, later) | ~US$10–11/year |
+
+Each pipeline takes about 1 minute, so the free minutes cover several hundred changes a month.

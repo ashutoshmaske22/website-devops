@@ -2,6 +2,7 @@
 import Base from '../layouts/Base.astro';
 import { SITE } from '../site.config';
 import { getPosts } from '../lib/posts';
+import { u } from '../lib/url';
 
 const posts = (await getPosts()).slice(0, 3);
 
@@ -189,7 +190,7 @@ const cases = [
     <div class="wrap">
       <div class="sec-head">
         <div class="label">// writing</div>
-        <div><h2>Notes from production</h2><p>Practical write-ups on real DevOps and AIOps problems. <a href="/blog/">All posts →</a></p></div>
+        <div><h2>Notes from production</h2><p>Practical write-ups on real DevOps and AIOps problems. <a href={u('/blog/')}>All posts →</a></p></div>
       </div>
       <div class="posts">
         {posts.map((p) => (

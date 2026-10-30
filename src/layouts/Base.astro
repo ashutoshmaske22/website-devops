@@ -1,6 +1,7 @@
 ---
 import '../styles/global.css';
 import { SITE } from '../site.config';
+import { u } from '../lib/url';
 
 interface Props {
   title?: string;
@@ -19,7 +20,7 @@ const year = new Date().getFullYear();
     <title>{fullTitle}</title>
     <meta name="description" content={description} />
     <link rel="canonical" href={canonical} />
-    <link rel="icon" href="/favicon.svg" type="image/svg+xml" />
+    <link rel="icon" href={u('/favicon.svg')} type="image/svg+xml" />
     <meta property="og:title" content={fullTitle} />
     <meta property="og:description" content={description} />
     <meta property="og:type" content="website" />
@@ -34,14 +35,14 @@ const year = new Date().getFullYear();
   <body>
     <header class="nav">
       <div class="wrap">
-        <a class="brand" href="/"><b>$</b> {SITE.brand}</a>
+        <a class="brand" href={u('/')}><b>$</b> {SITE.brand}</a>
         <ul>
-          <li><a href="/#services">Services</a></li>
-          <li><a href="/#work">Work</a></li>
-          <li><a href="/#about">About</a></li>
-          <li><a href="/blog/">Writing</a></li>
+          <li><a href={u('/#services')}>Services</a></li>
+          <li><a href={u('/#work')}>Work</a></li>
+          <li><a href={u('/#about')}>About</a></li>
+          <li><a href={u('/blog/')}>Writing</a></li>
         </ul>
-        <a class="btn" href="/#contact">Book a call</a>
+        <a class="btn" href={u('/#contact')}>Book a call</a>
       </div>
     </header>
     <main id="top">

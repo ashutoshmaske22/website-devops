@@ -1,0 +1,55 @@
+# GitLab CI/CD for the website.
+#  - Merge requests: install, audit, build (the "check").
+#  - main branch:    same checks, then publish to GitLab Pages.
+
+workflow:
+  rules:
+    # Run for merge requests, and for branch pushes that don't have an open MR
+    # (avoids running the same pipeline twice).
+    - if: $CI_PIPELINE_SOURCE == "merge_request_event"
+    - if: $CI_COMMIT_BRANCH && $CI_OPEN_MERGE_REQUESTS
+      when: never
+    - if: $CI_COMMIT_BRANCH
+
+default:
+  image: node:22-slim
+  interruptible: true
+
+variables:
+  npm_config_cache: "$CI_PROJECT_DIR/.npm"
+
+cache:
+  key:
+    files: [package-lock.json]
+  paths: [.npm/]
+
+stages: [check, deploy]
+
+check:
+  stage: check
+  script:
+    - node -v
+    - npm ci
+    - npm audit --audit-level=high
+    - SITE_URL="$CI_PAGES_URL" npm run build
+    - test -s dist/index.html
+  rules:
+    - if: $CI_COMMIT_BRANCH != $CI_DEFAULT_BRANCH
+
+pages:
+  stage: deploy
+  script:
+    - npm ci
+    - npm audit --audit-level=high
+    - SITE_URL="$CI_PAGES_URL" npm run build
+    - test -s dist/index.html
+    # GitLab Pages publishes the folder named "public".
+    # Astro's own public/ folder was already copied into dist/ by the build.
+    - rm -rf public && mv dist public
+  artifacts:
+    paths: [public]
+  rules:
+    - if: $CI_COMMIT_BRANCH == $CI_DEFAULT_BRANCH
+  environment:
+    name: production
+    url: $CI_PAGES_URL

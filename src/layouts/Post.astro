@@ -1,5 +1,6 @@
 ---
 import Base from './Base.astro';
+import { u } from '../lib/url';
 const { frontmatter } = Astro.props;
 const date = new Date(frontmatter.date).toLocaleDateString('en-GB', {
   day: 'numeric',
@@ -9,7 +10,7 @@ const date = new Date(frontmatter.date).toLocaleDateString('en-GB', {
 ---
 <Base title={frontmatter.title} description={frontmatter.description}>
   <article class="wrap prose">
-    <a class="label" href="/blog/">← all posts</a>
+    <a class="label" href={u('/blog/')}>← all posts</a>
     <h1>{frontmatter.title}</h1>
     <p class="post-meta">{date} · {frontmatter.tag}</p>
     <slot />
